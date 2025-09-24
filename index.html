@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema completo para calcular custos de aplicações em parreiral. Ferramenta gratuita para gestão agrícola.">
+    <title>🍇 Sistema de Custos do Parreiral</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-green: #2d5016;
+            --light-green: #5a8f37;
+            --success-green: #28a745;
+            --info-blue: #17a2b8;
+            --danger-red: #dc3545;
+            --light-gray: #f8f9fa;
+            --medium-gray: #e9ecef;
+            --dark-gray: #495057;
+            --white: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            background: var(--white);
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: var(--white);
+            text-align: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: clamp(1rem, 3vw, 1.25rem);
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .version-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--light-gray);
+            border-bottom: 2px solid var(--medium-gray);
+            overflow-x: auto;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 180px;
+            padding: 20px 15px;
+            background: var(--light-gray);
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: var(--medium-gray);
+            color: var(--primary-green);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: var(--white);
+            color: var(--primary-green);
+            border-bottom: 3px solid var(--light-green);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .section {
+            background: var(--light-gray);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid var(--light-green);
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-2px);
+        }
+
+        .section h3 {
+            color: var(--primary-green);
+            margin-bottom: 20px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        input, select {
+            padding: 14px;
+            border: 2px solid var(--medium-gray);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--light-green);
+            box-shadow: 0 0 0 3px rgba(90, 143, 55, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, var(--light-green) 0%, var(--primary-green) 100%);
+            color: var(--white);
+            border: none;
+            padding: 14px 28px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 8px 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: var(--shadow);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(45, 80, 22, 0.3);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger-red) 0%, #c82333 100%);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, var(--info-blue) 0%, #138496 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-green) 0%, #218838 100%);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: var(--white);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        th, td {
+            padding: 16px 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--medium-gray);
+        }
+
+        th {
+            background: linear-gradient(135deg, var(--primary-green) 0%, var(--light-green) 100%);
+            color: var(--white);
+            font-weight: 600;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background: rgba(90, 143, 55, 0.05);
+        }
+
+        .cost-highlight {
+            background: linear-gradient(135deg, var(--success-green) 0%, #20c997 100%);
+            color: var(--white);
+            font-weight: bold;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: var(--white);
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease;
+            border-top: 4px solid var(--light-green);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .stat-card .stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: var(--primary-green);
+            margin-bottom: 8px;
+        }
+
+        .stat-card .stat-label {
+            color: var(--dark-gray);
+            font-weight: 600;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid;
+            box-shadow: var(--shadow);
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-color: #bee5eb;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-color: #ffeeba;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            max-width: 400px;
+            z-index: 10000;
+            font-weight: 500;
+            white-space: pre-line;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+
+        .footer {
+            background: var(--primary-green);
+            color: var(--white);
+            text-align: center;
+            padding: 30px 20px;
+            margin-top: 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 30px 15px;
+            }
+            
+            .tab-content {
+                padding: 20px 15px;
+            }
+            
+            .form-group {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab {
+                min-width: auto;
+                flex: 1 1 33.333%;
+            }
+            
+            .section {
+                padding: 20px 15px;
+            }
+            
+            .version-badge {
+                position: static;
+                display: inline-block;
+                margin-top: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.9em;
+            }
+            
+            th, td {
+                padding: 12px 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="version-badge">v2.1</div>
+            <h1>🍇 Sistema de Custos do Parreiral</h1>
+            <p>Ferramenta completa para calcular e controlar os custos das aplicações no seu parreiral</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="AppTabs.show('aplicacoes')">📊 Aplicações</button>
+            <button class="tab" onclick="AppTabs.show('produtos')">💰 Produtos</button>
+            <button class="tab" onclick="AppTabs.show('relatorio')">📈 Relatórios</button>
+            <button class="tab" onclick="AppTabs.show('sobre')">ℹ️ Sobre</button>
+        </div>
+
+        <!-- ABA APLICAÇÕES -->
+        <div id="aplicacoes" class="tab-content active">
+            <div class="section">
+                <h3>📝 Nova Aplicação</h3>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label>Data da Aplicação</label>
+                        <input type="date" id="dataAplicacao" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Área (hectares)</label>
+                        <input type="number" id="areaHectares" step="0.01" placeholder="Ex: 2.5" required min="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Descrição</label>
+                        <input type="text" id="descricaoAplicacao" placeholder="Ex: Tratamento fungicida">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>🧪 Produtos Utilizados</h3>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label>Produto</label>
+                        <select id="produtoSelect">
+                            <option value="">🔍 Selecione um produto</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Dose por Hectare</label>
+                        <input type="number" id="dosePorHa" step="0.001" placeholder="Ex: 2.5" min="0.001">
+                    </div>
+                    <div class="input-group">
+                        <label>Unidade</label>
+                        <select id="unidadeDose">
+                            <option value="L">Litros (L)</option>
+                            <option value="kg">Quilogramas (kg)</option>
+                            <option value="mL">Mililitros (mL)</option>
+                            <option value="g">Gramas (g)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" onclick="Applications.addProduct()">
+                    ➕ Adicionar Produto
+                </button>
+                
+                <div id="produtosAplicacao" style="margin-top: 20px;">
+                    <h4>Produtos Adicionados:</h4>
+                    <table id="tabelaProdutosAplicacao">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Dose/ha</th>
+                                <th>Qtd Total</th>
+                                <th>Custo/ha</th>
+                                <th>Custo Total</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+                
+                <button class="btn" onclick="Applications.save()" style="margin-top: 20px;">
+                    💾 Salvar Aplicação
+                </button>
+            </div>
+
+            <div class="section">
+                <h3>📋 Histórico de Aplicações</h3>
+                <table id="tabelaAplicacoes">
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Área (ha)</th>
+                            <th>Produtos</th>
+                            <th>Custo Total</th>
+                            <th>Custo/ha</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA PRODUTOS -->
+        <div id="produtos" class="tab-content">
+            <div class="section">
+                <h3>💰 Cadastro de Preços</h3>
+                <div class="form-group">
+                    <div class="input-group">
+                        <label>Nome do Produto</label>
+                        <input type="text" id="nomeProduto" placeholder="Ex: Fungicida ABC">
+                    </div>
+                    <div class="input-group">
+                        <label>Categoria</label>
+                        <select id="categoriaProduto">
+                            <option value="">Selecione a categoria</option>
+                            <option value="Fungicida">🍄 Fungicida</option>
+                            <option value="Inseticida">🐛 Inseticida</option>
+                            <option value="Adubo">🌱 Adubo</option>
+                            <option value="Adubo Foliar">🍃 Adubo Foliar</option>
+                            <option value="Adjuvante">⚡ Adjuvante</option>
+                            <option value="Diesel">⛽ Diesel</option>
+                            <option value="Herbicida">🌿 Herbicida</option>
+                            <option value="Óleo">🛢️ Óleo Mineral</option>
+                            <option value="Outro">📦 Outro</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Preço por Unidade (R$)</label>
+                        <input type="number" id="precoProduto" step="0.01" placeholder="Ex: 45.90" min="0.01">
+                    </div>
+                    <div class="input-group">
+                        <label>Unidade</label>
+                        <select id="unidadeProduto">
+                            <option value="L">Litros (L)</option>
+                            <option value="kg">Quilogramas (kg)</option>
+                            <option value="mL">Mililitros (mL)</option>
+                            <option value="g">Gramas (g)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" onclick="Products.add()">
+                    ➕ Adicionar Produto
+                </button>
+            </div>
+
+            <div class="section">
+                <h3>📊 Lista de Produtos</h3>
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <div class="input-group">
+                        <label>Filtrar por Categoria</label>
+                        <select id="filtroCategoria" onchange="Products.filterByCategory()">
+                            <option value="">📋 Todas as categorias</option>
+                            <option value="Fungicida">🍄 Fungicidas</option>
+                            <option value="Inseticida">🐛 Inseticidas</option>
+                            <option value="Adubo">🌱 Adubos</option>
+                            <option value="Adubo Foliar">🍃 Adubos Foliares</option>
+                            <option value="Adjuvante">⚡ Adjuvantes</option>
+                            <option value="Diesel">⛽ Diesel</option>
+                            <option value="Herbicida">🌿 Herbicidas</option>
+                            <option value="Óleo">🛢️ Óleos</option>
+                            <option value="Outro">📦 Outros</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Buscar Produto</label>
+                        <input type="text" id="buscaProduto" placeholder="Digite o nome do produto..." onkeyup="Products.search()">
+                    </div>
+                </div>
+                
+                <table id="tabelaProdutos">
+                    <thead>
+                        <tr>
+                            <th>Produto</th>
+                            <th>Categoria</th>
+                            <th>Preço Unitário</th>
+                            <th>Unidade</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA RELATÓRIO -->
+        <div id="relatorio" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalAplicacoes">0</div>
+                    <div class="stat-label">Aplicações</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="areaTotal">0 ha</div>
+                    <div class="stat-label">Área Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="custoTotal">R$ 0,00</div>
+                    <div class="stat-label">Custo Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="custoMedio">R$ 0,00</div>
+                    <div class="stat-label">Custo Médio/ha</div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 30px;">
+                <div class="input-group">
+                    <label>📅 Data Inicial</label>
+                    <input type="date" id="dataInicial">
+                </div>
+                <div class="input-group">
+                    <label>📅 Data Final</label>
+                    <input type="date" id="dataFinal">
+                </div>
+                <div class="input-group" style="display: flex; align-items: end;">
+                    <button class="btn btn-info" onclick="Reports.generate()">
+                        📊 Gerar Relatório
+                    </button>
+                </div>
+            </div>
+
+            <div id="relatorioResultado"></div>
+        </div>
+
+        <!-- ABA SOBRE -->
+        <div id="sobre" class="tab-content">
+            <div class="section">
+                <h3>ℹ️ Sobre o Sistema</h3>
+                <p style="margin-bottom: 20px; font-size: 1.1em; line-height: 1.8;">
+                    O <strong>Sistema de Custos do Parreiral</strong> é uma ferramenta gratuita desenvolvida para ajudar 
+                    produtores de uva a calcular e controlar os custos das aplicações em seus vinhedos de forma simples e eficiente.
+                </p>
+                
+                <h4 style="color: var(--primary-green); margin-top: 25px; margin-bottom: 15px;">🎯 Funcionalidades</h4>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="margin-bottom: 10px;">✅ <strong>Cadastro de Produtos:</strong> Registre defensivos, fertilizantes e adjuvantes</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Múltiplos Produtos:</strong> Adicione vários produtos por aplicação</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Cálculo Automático:</strong> Conversão de unidades e custos em tempo real</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Controle por Hectare:</strong> Acompanhe custos por área tratada</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Histórico Completo:</strong> Visualize todas as aplicações realizadas</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Relatórios Detalhados:</strong> Análise por período e resumos executivos</li>
+                    <li style="margin-bottom: 10px;">✅ <strong>Exportação de Dados:</strong> Backup completo em JSON</li>
+                </ul>
+
+                <div class="section">
+                    <h3>🛠️ Ferramentas de Gestão</h3>
+                    <div class="form-group">
+                        <button class="btn btn-info" onclick="DataManager.export()">
+                            📤 Exportar Dados
+                        </button>
+                        <button class="btn btn-success" onclick="document.getElementById('importFile').click()">
+                            📥 Importar Dados
+                        </button>
+                        <button class="btn btn-danger" onclick="DataManager.clearAll()">
+                            🗑️ Limpar Dados
+                        </button>
+                    </div>
+                    <input type="file" id="importFile" accept=".json" style="display: none;" onchange="DataManager.import(event)">
+                    
+                    <div class="alert alert-warning" style="margin-top: 20px;">
+                        <strong>⚠️ Importante:</strong> Faça backup regular dos seus dados usando a função "Exportar Dados". 
+                        Os dados ficam salvos apenas no seu navegador.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>🍇 <strong>Sistema de Custos do Parreiral</strong> - Versão 2.1</p>
+        <p>Desenvolvido com ❤️ para a agricultura brasileira</p>
+        <p style="font-size: 0.9em; opacity: 0.8; margin-top: 15px;">
+            © 2024 - Software Livre sob Licença MIT
+        </p>
+    </div>
+
+    <script>
+        // ===== CONFIGURAÇÃO E CONSTANTES =====
+        const CONFIG = {
+            VERSION: '2.1',
+            STORAGE_KEYS: {
+                PRODUTOS: 'parreiral_produtos',
+                APLICACOES: 'parreiral_aplicacoes'
+            },
+            CATEGORIAS: {
+                'Fungicida': { icon: '🍄', color: '#8B4513' },
+                'Inseticida': { icon: '🐛', color: '#FF6347' },
+                'Adubo': { icon: '🌱', color: '#228B22' },
+                'Adubo Foliar': { icon: '🍃', color: '#32CD32' },
+                'Adjuvante': { icon: '⚡', color: '#4169E1' },
+                'Diesel': { icon: '⛽', color: '#FF8C00' },
+                'Herbicida': { icon: '🌿', color: '#008000' },
+                'Óleo': { icon: '🛢️', color: '#696969' },
+                'Outro': { icon: '📦', color: '#708090' }
+            },
+            UNIDADES_CONVERSAO: {
+                'L_mL': 1000,
+                'mL_L': 0.001,
+                'kg_g': 1000,
+                'g_kg': 0.001
+            }
+        };
+
+        // ===== ESTADO DA APLICAÇÃO =====
+        const AppState = {
+            produtos: [],
+            aplicacoes: [],
+            currentApplication: []
+        };
+
+        // ===== UTILITÁRIOS =====
+        const Utils = {
+            formatCurrency: (valor) => `R$ ${valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+            
+            formatDate: (dateString) => new Date(dateString + 'T00:00:00').toLocaleDateString('pt-BR'),
+            
+            getIconeCategoria: (categoria) => CONFIG.CATEGORIAS[categoria]?.icon || '📦',
+            
+            getCorCategoria: (categoria) => CONFIG.CATEGORIAS[categoria]?.color || '#708090',
+            
+            calcularFatorConversao: (unidadeOrigem, unidadeDestino) => {
+                if (unidadeOrigem === unidadeDestino) return 1;
+                const key = `${unidadeOrigem}_${unidadeDestino}`;
+                return CONFIG.UNIDADES_CONVERSAO[key] || 1;
+            },
+
+            debounce: (func, wait) => {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            },
+
+            generateId: () => Date.now() + Math.random().toString(36).substr(2, 9),
+
+            sanitizeInput: (input) => String(input).trim().replace(/<[^>]*>/g, ''),
+
+            deepClone: (obj) => JSON.parse(JSON.stringify(obj)),
+
+            validateNumber: (value, min = 0) => {
+                const num = parseFloat(value);
+                return !isNaN(num) && num > min;
+            }
+        };
+
+        // ===== GERENCIAMENTO DE NOTIFICAÇÕES =====
+        const NotificationManager = {
+            show: (mensagem, tipo = 'info', duracao = 5000) => {
+                NotificationManager.remove();
+
+                const cores = {
+                    success: { bg: '#d4edda', border: '#c3e6cb', text: '#155724' },
+                    error: { bg: '#f8d7da', border: '#f5c6cb', text: '#721c24' },
+                    warning: { bg: '#fff3cd', border: '#ffeeba', text: '#856404' },
+                    info: { bg: '#d1ecf1', border: '#bee5eb', text: '#0c5460' }
+                };
+
+                const cor = cores[tipo] || cores.info;
+                const notificacao = document.createElement('div');
+                notificacao.className = 'notification';
+                notificacao.style.cssText = `
+                    background: ${cor.bg};
+                    color: ${cor.text};
+                    border: 1px solid ${cor.border};
+                    border-left: 4px solid ${cor.border};
+                `;
+
+                notificacao.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                        <span>${mensagem}</span>
+                        <button onclick="this.parentElement.parentElement.remove()" 
+                                style="background: none; border: none; font-size: 18px; cursor: pointer; margin-left: 10px; color: ${cor.text};">
+                            ×
+                        </button>
+                    </div>
+                `;
+
+                document.body.appendChild(notificacao);
+
+                if (duracao > 0) {
+                    setTimeout(() => NotificationManager.remove(), duracao);
+                }
+            },
+
+            remove: () => {
+                const existing = document.querySelector('.notification');
+                if (existing) {
+                    existing.style.animation = 'slideOut 0.3s ease-in';
+                    setTimeout(() => existing.remove(), 300);
+                }
+            }
+        };
+
+        // ===== GERENCIAMENTO DE ABAS =====
+        const AppTabs = {
+            show: (tabName) => {
+                try {
+                    // Remove active class from all tabs and contents
+                    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    // Activate clicked tab
+                    const tabNames = {
+                        'aplicacoes': '📊 Aplicações',
+                        'produtos': '💰 Produtos',
+                        'relatorio': '📈 Relatórios',
+                        'sobre': 'ℹ️ Sobre'
+                    };
+
+                    document.querySelectorAll('.tab').forEach(tab => {
+                        if (tab.textContent.includes(tabNames[tabName])) {
+                            tab.classList.add('active');
+                        }
+                    });
+                    
+                    // Show content
+                    const tabContent = document.getElementById(tabName);
+                    if (tabContent) {
+                        tabContent.classList.add('active');
+                        
+                        // Specific actions per tab
+                        if (tabName === 'relatorio') {
+                            Statistics.update();
+                        }
+                    }
+                    
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } catch (error) {
+                    console.error('Erro ao trocar aba:', error);
+                    NotificationManager.show('Erro ao carregar a aba. Recarregue a página.', 'error');
+                }
+            }
+        };
+
+        // ===== GERENCIAMENTO DE DADOS =====
+        const DataManager = {
+            save: () => {
+                try {
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.PRODUTOS, JSON.stringify(AppState.produtos));
+                    localStorage.setItem(CONFIG.STORAGE_KEYS.APLICACOES, JSON.stringify(AppState.aplicacoes));
+                    return true;
+                } catch (error) {
+                    console.error('Erro ao salvar:', error);
+                    NotificationManager.show('Erro ao salvar dados. Verifique o espaço de armazenamento.', 'error');
+                    return false;
+                }
+            },
+
+            load: () => {
+                try {
+                    const produtosSalvos = localStorage.getItem(CONFIG.STORAGE_KEYS.PRODUTOS);
+                    const aplicacoesSalvas = localStorage.getItem(CONFIG.STORAGE_KEYS.APLICACOES);
+
+                    if (produtosSalvos && produtosSalvos !== 'undefined') {
+                        AppState.produtos = JSON.parse(produtosSalvos).filter(p => 
+                            p?.id && p?.nome && typeof p?.preco === 'number'
+                        );
+                    }
+
+                    if (aplicacoesSalvas && aplicacoesSalvas !== 'undefined') {
+                        AppState.aplicacoes = JSON.parse(aplicacoesSalvas).filter(a => 
+                            a?.id && a?.data && a?.area && Array.isArray(a?.produtos)
+                        );
+                    }
+
+                    console.log(`Dados carregados: ${AppState.produtos.length} produtos, ${AppState.aplicacoes.length} aplicações`);
+                    return true;
+                } catch (error) {
+                    console.error('Erro ao carregar dados:', error);
+                    AppState.produtos = [];
+                    AppState.aplicacoes = [];
+                    return false;
+                }
+            },
+
+            export: () => {
+                try {
+                    const dados = {
+                        versao: CONFIG.VERSION,
+                        exportadoEm: new Date().toISOString(),
+                        produtos: AppState.produtos,
+                        aplicacoes: AppState.aplicacoes
+                    };
+
+                    const dataStr = JSON.stringify(dados, null, 2);
+                    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                    
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(dataBlob);
+                    link.download = `parreiral-backup-${new Date().toISOString().split('T')[0]}.json`;
+                    
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    NotificationManager.show('Backup exportado com sucesso!', 'success');
+                } catch (error) {
+                    console.error('Erro ao exportar:', error);
+                    NotificationManager.show('Erro ao exportar dados.', 'error');
+                }
+            },
+
+            import: (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const dados = JSON.parse(e.target.result);
+                        
+                        if (!dados.produtos || !dados.aplicacoes) {
+                            throw new Error('Formato de arquivo inválido');
+                        }
+
+                        if (confirm('Importar dados irá substituir todos os dados atuais. Tem certeza?')) {
+                            AppState.produtos = dados.produtos || [];
+                            AppState.aplicacoes = dados.aplicacoes || [];
+                            
+                            DataManager.save();
+                            
+                            // Update all interfaces
+                            Products.updateSelect();
+                            Products.updateTable();
+                            Applications.updateTable();
+                            Applications.updateCurrentTable();
+                            Statistics.update();
+                            
+                            NotificationManager.show(`Dados importados com sucesso!\n\n${AppState.produtos.length} produtos e ${AppState.aplicacoes.length} aplicações carregadas.`, 'success');
+                        }
+                    } catch (error) {
+                        console.error('Erro ao importar:', error);
+                        NotificationManager.show('Erro ao importar dados. Verifique se o arquivo é válido.', 'error');
+                    }
+                };
+                
+                reader.readAsText(file);
+            },
+
+            clearAll: () => {
+                if (confirm('ATENÇÃO: Esta ação irá apagar TODOS os dados!\n\nTem certeza absoluta? Esta ação não pode ser desfeita!')) {
+                    if (confirm('ÚLTIMA CONFIRMAÇÃO: Todos os produtos e aplicações serão perdidos!')) {
+                        Object.values(CONFIG.STORAGE_KEYS).forEach(key => {
+                            localStorage.removeItem(key);
+                        });
+                        
+                        AppState.produtos = [];
+                        AppState.aplicacoes = [];
+                        AppState.currentApplication = [];
+                        
+                        // Clear forms
+                        document.getElementById('nomeProduto').value = '';
+                        document.getElementById('precoProduto').value = '';
+                        document.getElementById('dataAplicacao').value = new Date().toISOString().split('T')[0];
+                        document.getElementById('areaHectares').value = '';
+                        document.getElementById('descricaoAplicacao').value = '';
+                        
+                        // Update interfaces
+                        Products.updateSelect();
+                        Products.updateTable();
+                        Applications.updateTable();
+                        Applications.updateCurrentTable();
+                        Statistics.update();
+                        
+                        NotificationManager.show('Todos os dados foram removidos com sucesso!', 'success');
+                    }
+                }
+            }
+        };
+
+        // ===== GERENCIAMENTO DE PRODUTOS =====
+        const Products = {
+            add: () => {
+                const nome = Utils.sanitizeInput(document.getElementById('nomeProduto').value);
+                const categoria = document.getElementById('categoriaProduto').value;
+                const preco = parseFloat(document.getElementById('precoProduto').value);
+                const unidade = document.getElementById('unidadeProduto').value;
+
+                if (!nome || nome.length < 2) {
+                    NotificationManager.show('Digite um nome válido para o produto (mínimo 2 caracteres)!', 'error');
+                    return;
+                }
+
+                if (!categoria) {
+                    NotificationManager.show('Selecione uma categoria para o produto!', 'error');
+                    return;
+                }
+
+                if (!Utils.validateNumber(preco)) {
+                    NotificationManager.show('Digite um preço válido maior que zero!', 'error');
+                    return;
+                }
+
+                // Check if product already exists
+                const produtoExistente = AppState.produtos.find(p => 
+                    p.nome.toLowerCase().trim() === nome.toLowerCase().trim()
+                );
+                
+                if (produtoExistente) {
+                    if (confirm(`O produto "${nome}" já existe. Deseja atualizar?`)) {
+                        produtoExistente.categoria = categoria;
+                        produtoExistente.preco = preco;
+                        produtoExistente.unidade = unidade;
+                        
+                        DataManager.save();
+                        Products.clearForm();
+                        Products.updateTable();
+                        Products.updateSelect();
+                        
+                        NotificationManager.show('Produto atualizado com sucesso!', 'success');
+                    }
+                    return;
+                }
+
+                const produto = {
+                    id: Utils.generateId(),
+                    nome,
+                    categoria,
+                    preco,
+                    unidade,
+                    dataAdicao: new Date().toISOString()
+                };
+
+                AppState.produtos.push(produto);
+                DataManager.save();
+                
+                Products.clearForm();
+                Products.updateTable();
+                Products.updateSelect();
+                
+                NotificationManager.show(`${categoria} "${nome}" adicionado com sucesso!`, 'success');
+            },
+
+            remove: (id) => {
+                const produto = AppState.produtos.find(p => p.id === id);
+                if (!produto) return;
+
+                if (confirm(`Tem certeza que deseja remover "${produto.nome}" (${produto.categoria})?`)) {
+                    AppState.produtos = AppState.produtos.filter(p => p.id !== id);
+                    DataManager.save();
+                    Products.updateTable();
+                    Products.updateSelect();
+                    NotificationManager.show('Produto removido com sucesso!', 'success');
+                }
+            },
+
+            clearForm: () => {
+                document.getElementById('nomeProduto').value = '';
+                document.getElementById('categoriaProduto').value = '';
+                document.getElementById('precoProduto').value = '';
+                document.getElementById('unidadeProduto').value = 'L';
+            },
+
+            updateTable: () => {
+                const tbody = document.querySelector('#tabelaProdutos tbody');
+                tbody.innerHTML = '';
+
+                if (AppState.produtos.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666; font-style: italic; padding: 30px;">Nenhum produto cadastrado</td></tr>';
+                    return;
+                }
+
+                // Apply filters
+                let produtosFiltrados = [...AppState.produtos];
+                
+                const filtroCategoria = document.getElementById('filtroCategoria')?.value;
+                if (filtroCategoria) {
+                    produtosFiltrados = produtosFiltrados.filter(p => p.categoria === filtroCategoria);
+                }
+
+                const buscaTexto = document.getElementById('buscaProduto')?.value.toLowerCase();
+                if (buscaTexto) {
+                    produtosFiltrados = produtosFiltrados.filter(p => 
+                        p.nome.toLowerCase().includes(buscaTexto) || 
+                        p.categoria.toLowerCase().includes(buscaTexto)
+                    );
+                }
+
+                // Sort by category and name
+                produtosFiltrados.sort((a, b) => {
+                    if (a.categoria !== b.categoria) {
+                        return a.categoria.localeCompare(b.categoria);
+                    }
+                    return a.nome.localeCompare(b.nome);
+                });
+
+                if (produtosFiltrados.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666; font-style: italic; padding: 30px;">Nenhum produto encontrado com os filtros aplicados</td></tr>';
+                    return;
+                }
+
+                produtosFiltrados.forEach(produto => {
+                    const row = tbody.insertRow();
+                    const icone = Utils.getIconeCategoria(produto.categoria);
+                    const cor = Utils.getCorCategoria(produto.categoria);
+
+                    row.innerHTML = `
+                        <td><strong>${produto.nome}</strong></td>
+                        <td style="text-align: center;">
+                            <span style="background: ${cor}; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85em; font-weight: 500; display: inline-flex; align-items: center; gap: 5px;">
+                                ${icone} ${produto.categoria}
+                            </span>
+                        </td>
+                        <td style="text-align: center; color: var(--success-green); font-weight: bold; font-size: 1.1em;">
+                            ${Utils.formatCurrency(produto.preco)}
+                        </td>
+                        <td style="text-align: center;">
+                            <span style="background: var(--light-green); color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: 500;">
+                                ${produto.unidade}
+                            </span>
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn btn-danger" onclick="Products.remove('${produto.id}')" style="padding: 8px 12px; font-size: 0.85em;">
+                                🗑️ Remover
+                            </button>
+                        </td>
+                    `;
+                });
+            },
+
+            updateSelect: () => {
+                const select = document.getElementById('produtoSelect');
+                select.innerHTML = '<option value="">🔍 Selecione um produto</option>';
+
+                if (AppState.produtos.length === 0) {
+                    select.innerHTML += '<option value="" disabled>⚠️ Nenhum produto cadastrado - Vá para a aba "Produtos"</option>';
+                    return;
+                }
+
+                // Group products by category
+                const produtosPorCategoria = {};
+                AppState.produtos.forEach(produto => {
+                    if (!produtosPorCategoria[produto.categoria]) {
+                        produtosPorCategoria[produto.categoria] = [];
+                    }
+                    produtosPorCategoria[produto.categoria].push(produto);
+                });
+
+                // Sort categories
+                const categoriasOrdenadas = Object.keys(produtosPorCategoria).sort();
+
+                categoriasOrdenadas.forEach(categoria => {
+                    const optgroup = document.createElement('optgroup');
+                    optgroup.label = `${Utils.getIconeCategoria(categoria)} ${categoria}`;
+                    select.appendChild(optgroup);
+
+                    const produtosOrdenados = produtosPorCategoria[categoria].sort((a, b) => a.nome.localeCompare(b.nome));
+
+                    produtosOrdenados.forEach(produto => {
+                        const option = document.createElement('option');
+                        option.value = produto.id;
+                        option.textContent = `${produto.nome} - ${Utils.formatCurrency(produto.preco)}/${produto.unidade}`;
+                        optgroup.appendChild(option);
+                    });
+                });
+            },
+
+            filterByCategory: () => {
+                Products.updateTable();
+            },
+
+            search: () => {
+                Products.updateTable();
+            }
+        };
+
+        // ===== GERENCIAMENTO DE APLICAÇÕES =====
+        const Applications = {
+            addProduct: () => {
+                const produtoId = document.getElementById('produtoSelect').value;
+                const dose = parseFloat(document.getElementById('dosePorHa').value);
+                const unidadeDose = document.getElementById('unidadeDose').value;
+
+                if (!produtoId || !Utils.validateNumber(dose)) {
+                    NotificationManager.show('Selecione um produto e informe uma dose válida!', 'error');
+                    return;
+                }
+
+                // Check if product already added
+                if (AppState.currentApplication.find(p => p.produto.id === produtoId)) {
+                    NotificationManager.show('Este produto já foi adicionado a esta aplicação!', 'warning');
+                    return;
+                }
+
+                const produto = AppState.produtos.find(p => p.id === produtoId);
+                if (!produto) {
+                    NotificationManager.show('Produto não encontrado!', 'error');
+                    return;
+                }
+
+                // Unit compatibility warning
+                if (produto.unidade !== unidadeDose) {
+                    if (!confirm(`Atenção: O produto ${produto.nome} está cadastrado em ${produto.unidade}, mas você está usando ${unidadeDose}.\n\nO sistema fará a conversão automaticamente. Deseja continuar?`)) {
+                        return;
+                    }
+                }
+
+                const produtoAplicacao = {
+                    id: Utils.generateId(),
+                    produto: Utils.deepClone(produto),
+                    dose,
+                    unidadeDose
+                };
+
+                AppState.currentApplication.push(produtoAplicacao);
+                
+                // Clear fields
+                document.getElementById('produtoSelect').value = '';
+                document.getElementById('dosePorHa').value = '';
+                document.getElementById('unidadeDose').value = 'L';
+                
+                Applications.updateCurrentTable();
+                NotificationManager.show('Produto adicionado à aplicação!', 'success');
+            },
+
+            removeProduct: (id) => {
+                AppState.currentApplication = AppState.currentApplication.filter(p => p.id !== id);
+                Applications.updateCurrentTable();
+                NotificationManager.show('Produto removido da aplicação!', 'success');
+            },
+
+            updateCurrentTable: () => {
+                const tbody = document.querySelector('#tabelaProdutosAplicacao tbody');
+                tbody.innerHTML = '';
+
+                const area = parseFloat(document.getElementById('areaHectares').value) || 0;
+                let custoTotalAplicacao = 0;
+
+                if (AppState.currentApplication.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666; font-style: italic; padding: 20px;">Nenhum produto adicionado</td></tr>';
+                    return;
+                }
+
+                AppState.currentApplication.forEach(item => {
+                    const fatorConversao = Utils.calcularFatorConversao(item.produto.unidade, item.unidadeDose);
+                    const doseConvertida = item.dose / fatorConversao;
+                    const qtdTotal = item.dose * area;
+                    const custoHa = item.produto.preco * doseConvertida;
+                    const custoTotal = custoHa * area;
+
+                    custoTotalAplicacao += custoTotal;
+
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td>
+                            <strong>${item.produto.nome}</strong>
+                            <br><small style="color: #666;">${Utils.formatCurrency(item.produto.preco)}/${item.produto.unidade}</small>
+                            ${fatorConversao !== 1 ? '<br><small style="color: #007bff;">🔄 Conversão aplicada</small>' : ''}
+                        </td>
+                        <td style="text-align: center;">
+                            <strong>${item.dose.toFixed(3)}</strong> ${item.unidadeDose}/ha
+                        </td>
+                        <td style="text-align: center;">
+                            <strong>${qtdTotal.toFixed(3)}</strong> ${item.unidadeDose}
+                        </td>
+                        <td style="text-align: center; color: var(--info-blue); font-weight: bold;">
+                            ${Utils.formatCurrency(custoHa)}
+                        </td>
+                        <td class="cost-highlight" style="text-align: center;">
+                            ${Utils.formatCurrency(custoTotal)}
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn btn-danger" onclick="Applications.removeProduct('${item.id}')" style="padding: 6px 10px; font-size: 0.8em;">
+                                🗑️
+                            </button>
+                        </td>
+                    `;
+                });
+
+                // Add total row
+                if (AppState.currentApplication.length > 0 && area > 0) {
+                    const custoTotalPorHa = custoTotalAplicacao / area;
+                    const rowTotal = tbody.insertRow();
+                    rowTotal.innerHTML = `
+                        <td colspan="3" style="text-align: right; font-weight: bold; background: var(--light-gray);">
+                            <strong>TOTAL DA APLICAÇÃO:</strong>
+                        </td>
+                        <td style="text-align: center; font-weight: bold; background: var(--info-blue); color: white;">
+                            ${Utils.formatCurrency(custoTotalPorHa)}
+                        </td>
+                        <td style="text-align: center; font-weight: bold; background: var(--success-green); color: white; font-size: 1.1em;">
+                            ${Utils.formatCurrency(custoTotalAplicacao)}
+                        </td>
+                        <td style="background: var(--light-gray);"></td>
+                    `;
+                    rowTotal.style.borderTop = '2px solid var(--success-green)';
+                }
+            },
+
+            save: () => {
+                const data = document.getElementById('dataAplicacao').value;
+                const area = parseFloat(document.getElementById('areaHectares').value);
+                const descricao = Utils.sanitizeInput(document.getElementById('descricaoAplicacao').value) || 'Aplicação sem descrição';
+
+                if (!data || !Utils.validateNumber(area)) {
+                    NotificationManager.show('Preencha a data e área corretamente!', 'error');
+                    return;
+                }
+
+                if (AppState.currentApplication.length === 0) {
+                    NotificationManager.show('Adicione pelo menos um produto à aplicação!', 'error');
+                    return;
+                }
+
+                const aplicacao = {
+                    id: Utils.generateId(),
+                    data,
+                    area,
+                    descricao,
+                    produtos: AppState.currentApplication.map(item => ({
+                        id: item.id,
+                        produto: Utils.deepClone(item.produto),
+                        dose: item.dose,
+                        unidadeDose: item.unidadeDose
+                    })),
+                    dataAdicao: new Date().toISOString()
+                };
+
+                AppState.aplicacoes.push(aplicacao);
+                DataManager.save();
+                
+                // Clear form
+                document.getElementById('dataAplicacao').value = new Date().toISOString().split('T')[0];
+                document.getElementById('areaHectares').value = '';
+                document.getElementById('descricaoAplicacao').value = '';
+                AppState.currentApplication = [];
+                
+                Applications.updateCurrentTable();
+                Applications.updateTable();
+                Statistics.update();
+                
+                // Show summary
+                const custoTotal = CostCalculator.calculateApplication(aplicacao);
+                const custoHa = custoTotal / area;
+                
+                NotificationManager.show(
+                    `Aplicação salva com sucesso!\n\nResumo:\n• ${aplicacao.produtos.length} produto(s)\n• Área: ${area.toFixed(2)} ha\n• Custo total: ${Utils.formatCurrency(custoTotal)}\n• Custo/ha: ${Utils.formatCurrency(custoHa)}`,
+                    'success'
+                );
+
+                document.querySelector('#tabelaAplicacoes').scrollIntoView({ behavior: 'smooth' });
+            },
+
+            remove: (id) => {
+                const aplicacao = AppState.aplicacoes.find(a => a.id === id);
+                if (!aplicacao) return;
+
+                if (confirm(`Tem certeza que deseja remover a aplicação "${aplicacao.descricao}"?`)) {
+                    AppState.aplicacoes = AppState.aplicacoes.filter(a => a.id !== id);
+                    DataManager.save();
+                    Applications.updateTable();
+                    Statistics.update();
+                    NotificationManager.show('Aplicação removida com sucesso!', 'success');
+                }
+            },
+
+            updateTable: () => {
+                const tbody = document.querySelector('#tabelaAplicacoes tbody');
+                tbody.innerHTML = '';
+
+                if (AppState.aplicacoes.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #666; font-style: italic; padding: 30px;">Nenhuma aplicação registrada</td></tr>';
+                    return;
+                }
+
+                // Sort by date (newest first)
+                const aplicacoesOrdenadas = [...AppState.aplicacoes].sort((a, b) => new Date(b.data) - new Date(a.data));
+
+                aplicacoesOrdenadas.forEach(aplicacao => {
+                    const custoTotal = CostCalculator.calculateApplication(aplicacao);
+                    const custoHa = aplicacao.area > 0 ? custoTotal / aplicacao.area : 0;
+                    
+                    const produtosDetalhes = aplicacao.produtos.map(p => 
+                        `${p.produto.nome} (${p.dose.toFixed(2)} ${p.unidadeDose}/ha)`
+                    ).join('<br>');
+
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td style="text-align: center;">
+                            <strong>${Utils.formatDate(aplicacao.data)}</strong>
+                        </td>
+                        <td>
+                            <strong>${aplicacao.descricao}</strong>
+                        </td>
+                        <td style="text-align: center; color: var(--primary-green); font-weight: bold;">
+                            ${aplicacao.area.toFixed(2)} ha
+                        </td>
+                        <td style="font-size: 0.9em; line-height: 1.4;">
+                            ${produtosDetalhes}
+                            <br><small style="color: #666; margin-top: 5px; display: block;">${aplicacao.produtos.length} produto(s)</small>
+                        </td>
+                        <td class="cost-highlight" style="text-align: center; font-size: 1.1em;">
+                            ${Utils.formatCurrency(custoTotal)}
+                        </td>
+                        <td style="text-align: center; color: var(--info-blue); font-weight: bold;">
+                            ${Utils.formatCurrency(custoHa)}
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn btn-danger" onclick="Applications.remove('${aplicacao.id}')" style="padding: 8px 12px; font-size: 0.85em;">
+                                🗑️ Remover
+                            </button>
+                        </td>
+                    `;
+                });
+
+                // Summary row
+                if (AppState.aplicacoes.length > 0) {
+                    const custoTotalGeral = AppState.aplicacoes.reduce((total, app) => total + CostCalculator.calculateApplication(app), 0);
+                    const areaTotal = AppState.aplicacoes.reduce((total, app) => total + app.area, 0);
+                    const custoMedioHa = areaTotal > 0 ? custoTotalGeral / areaTotal : 0;
+
+                    const rowResumo = tbody.insertRow();
+                    rowResumo.innerHTML = `
+                        <td colspan="2" style="text-align: right; font-weight: bold; background: var(--light-gray); color: var(--primary-green);">
+                            📊 RESUMO GERAL:
+                        </td>
+                        <td style="text-align: center; font-weight: bold; background: var(--medium-gray); color: var(--primary-green);">
+                            ${areaTotal.toFixed(2)} ha
+                        </td>
+                        <td style="text-align: center; font-weight: bold; background: var(--medium-gray); color: var(--primary-green);">
+                            ${AppState.aplicacoes.length} aplicações
+                        </td>
+                        <td style="text-align: center; font-weight: bold; background: var(--success-green); color: white; font-size: 1.2em;">
+                            ${Utils.formatCurrency(custoTotalGeral)}
+                        </td>
+                        <td style="text-align: center; font-weight: bold; background: var(--info-blue); color: white;">
+                            ${Utils.formatCurrency(custoMedioHa)}
+                        </td>
+                        <td style="background: var(--light-gray);"></td>
+                    `;
